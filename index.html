@@ -25,7 +25,7 @@
         body { 
             background-color: var(--bg-screen); 
             color: var(--text-dark); 
-            padding: 40px 20px; 
+            padding: 10px 20px; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -35,23 +35,23 @@
         .container { 
             background: var(--card-bg); 
             width: 100%; 
-            max-width: 780px; 
-            padding: 45px; 
+            max-width: 820px; 
+            padding: 20px 30px; 
             border-radius: 12px; 
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); 
-            border-top: 8px solid var(--movistar-blue); 
+            border-top: 6px solid var(--movistar-blue); 
         }
 
         .header { 
             text-align: center; 
-            margin-bottom: 35px; 
+            margin-bottom: 15px; 
             border-bottom: 2px solid #eef0f5; 
-            padding-bottom: 25px; 
+            padding-bottom: 10px; 
         }
         
         .logo-container {
-            max-width: 280px;
-            margin: 0 auto 15px auto;
+            max-width: 200px;
+            margin: 0 auto 5px auto;
         }
 
         .logo-container img {
@@ -62,28 +62,28 @@
 
         .header h2 { 
             color: var(--text-dark); 
-            font-size: 24px; 
+            font-size: 19px; 
             text-transform: uppercase; 
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             font-weight: 700;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
-        /* Divisores Visuais para Encorpar a Tela */
+        /* Seções compactadas */
         .form-section {
             background: #fafbfc;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 25px;
+            padding: 12px 20px;
+            margin-bottom: 12px;
         }
 
         .section-title {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--movistar-blue);
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             letter-spacing: 0.8px;
             display: flex;
             align-items: center;
@@ -100,41 +100,48 @@
         .form-row { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
+            gap: 15px; 
         }
 
-        /* Linhas da frota estruturadas em grid dinâmico */
+        /* Grid da frota otimizado para 3 colunas e economizar altura */
         .frota-grid-tela {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Grid de serviços em duas colunas paralela */
+        .servicos-grid-tela {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 12px;
         }
 
         .form-group { 
-            margin-bottom: 15px; 
+            margin-bottom: 2px; 
         }
 
         @media (max-width: 650px) {
-            .form-row, .frota-grid-tela { grid-template-columns: 1fr; gap: 0; }
-            .form-group { margin-bottom: 20px; }
+            .form-row, .frota-grid-tela, .servicos-grid-tela { grid-template-columns: 1fr !important; gap: 0; }
+            .form-group { margin-bottom: 10px; }
         }
 
         label { 
-            font-size: 13px; 
+            font-size: 11px; 
             font-weight: 700; 
             color: #374151; 
             display: block; 
-            margin-bottom: 8px; 
+            margin-bottom: 5px; 
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
         input, textarea, select { 
             width: 100%; 
-            padding: 14px 16px; 
+            padding: 10px 12px; 
             border: 1px solid var(--border-color); 
             border-radius: 6px; 
-            font-size: 15px; 
+            font-size: 14px; 
             background-color: #fff; 
             color: var(--text-dark); 
             transition: all 0.2s ease-in-out;
@@ -151,10 +158,9 @@
         input:focus, textarea:focus, select:focus { 
             outline: none; 
             border-color: var(--movistar-blue); 
-            box-shadow: 0 0 0 4px rgba(0, 0, 255, 0.08); 
+            box-shadow: 0 0 0 3px rgba(0, 0, 255, 0.04); 
         }
 
-        /* Container de Busca com Ícone e Botão + */
         .search-input-container {
             display: flex;
             align-items: center;
@@ -164,14 +170,14 @@
         .search-input-container::before {
             content: "🔍";
             position: absolute;
-            left: 12px;
-            font-size: 14px;
+            left: 10px;
+            font-size: 13px;
             color: #888;
             pointer-events: none;
         }
 
         .search-input-container select {
-            padding-left: 36px;
+            padding-left: 32px;
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
         }
@@ -181,8 +187,8 @@
             color: #111827;
             border: 1px solid var(--border-color);
             border-left: none;
-            padding: 14px 16px;
-            font-size: 15px;
+            padding: 10px 14px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             border-top-right-radius: 6px;
@@ -195,25 +201,19 @@
             color: var(--movistar-blue);
         }
 
-        textarea { 
-            resize: vertical; 
-            min-height: 140px; 
-            line-height: 1.6; 
-        }
-
         button[type="submit"] { 
             background-color: var(--movistar-blue); 
             color: white; 
-            padding: 18px 20px; 
+            padding: 14px 20px; 
             border: none; 
             border-radius: 6px; 
             cursor: pointer; 
             width: 100%; 
-            font-size: 16px; 
+            font-size: 15px; 
             font-weight: 700; 
             text-transform: uppercase; 
-            margin-top: 10px; 
-            letter-spacing: 1px;
+            margin-top: 5px; 
+            letter-spacing: 0.5px;
             transition: background-color 0.2s;
         }
         button[type="submit"]:hover { background-color: #0000cd; }
@@ -282,18 +282,19 @@
             .print-textarea-lines {
                 display: block !important;
                 border: 2px solid #000000;
-                padding: 12px;
+                padding: 15px;
                 margin-top: 15px;
                 margin-bottom: 25px;
-                min-height: 280px;
+                min-height: 250px;
                 background: #ffffff;
             }
-            .print-value-description {
+            .print-item-linha {
                 font-size: 14px;
                 font-weight: bold;
-                line-height: 1.6;
                 color: #000000;
-                white-space: pre-wrap;
+                margin-bottom: 10px;
+                border-bottom: 1px dashed #ccc;
+                padding-bottom: 6px;
             }
 
             .signature-container { 
@@ -358,14 +359,14 @@
         <div class="form-section">
             <div class="section-title">Identificação da Demanda</div>
             
-            <div class="form-group">
-                <label for="dataSolicitacao">Data da Solicitação</label>
-                <input type="date" id="dataSolicitacao" required>
-            </div>
-
-            <div class="frota-grid-tela">
+            <div class="form-row" style="margin-bottom: 10px;">
                 <div class="form-group">
-                    <label for="selectFrota">Frota / Prefixo</label>
+                    <label for="dataSolicitacao">Data da Solicitação</label>
+                    <input type="date" id="dataSolicitacao" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectFrota">Frota </label>
                     <div class="search-input-container">
                         <select id="selectFrota" required>
                             <option value="" disabled selected>Buscando...</option>
@@ -373,9 +374,11 @@
                         <button type="button" class="btn-add-shortcut" onclick="adicionarFrotaManual()" title="Cadastrar nova frota">+</button>
                     </div>
                 </div>
+            </div>
 
+            <div class="frota-grid-tela">
                 <div class="form-group">
-                    <label for="txtPlaca">Placa Atribuída</label>
+                    <label for="txtPlaca">Placa</label>
                     <input type="text" id="txtPlaca" placeholder="Automático" disabled required>
                 </div>
 
@@ -389,7 +392,7 @@
                     <input type="text" id="txtFilial" placeholder="Automático" disabled required>
                 </div>
 
-                <div class="form-group" style="grid-column: span 2;">
+                <div class="form-group" style="grid-column: span 3; margin-top: 5px;">
                     <label for="txtCnpj">CNPJ da Frota</label>
                     <input type="text" id="txtCnpj" placeholder="Automático" disabled required>
                 </div>
@@ -410,10 +413,23 @@
         </div>
 
         <div class="form-section">
-            <div class="section-title">Especificação Técnica</div>
-            <div class="form-group">
-                <label for="descricao">Descrição do Serviço Solicitado</label>
-                <textarea id="descricao" placeholder="Descreva de forma clara os problemas identificados, itens a serem revisados ou reparos específicos a serem executados no veículo..." required></textarea>
+            <div class="section-title">Especificação Técnica dos Serviços</div>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="servico1">1º Serviço Solicitado (Obrigatório)</label>
+                <input type="text" id="servico1" placeholder="Ex: Troca de óleo do motor e filtros" required>
+            </div>
+
+            <div class="servicos-grid-tela">
+                <div class="form-group">
+                    <label for="servico2">2º Serviço Solicitado</label>
+                    <input type="text" id="servico2" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="servico3">3º Serviço Solicitado</label>
+                    <input type="text" id="servico3" placeholder="">
+                </div>
             </div>
         </div>
 
@@ -454,8 +470,10 @@
     </div>
 
     <div class="print-textarea-lines">
-        <div class="print-label">Descrição do Serviço a Ser Executado</div>
-        <div class="print-value-description" id="printDescricao"></div>
+        <div class="print-label" style="margin-bottom: 15px;">Relação de Serviços a Serem Executados</div>
+        <div class="print-item-linha" id="printServico1"></div>
+        <div class="print-item-linha" id="printServico2"></div>
+        <div class="print-item-linha" id="printServico3"></div>
     </div>
 
     <div class="signature-container">
@@ -485,7 +503,6 @@
     let dicionarioFrotas = {};
 
     async function carregarBancoDeDados() {
-        // Buscar Frotas
         try {
             const resFrota = await fetch(URL_FROTA);
             if (resFrota.ok) {
@@ -499,7 +516,6 @@
                 frotas.forEach(f => {
                     const item = f.json || f;
                     if(item.FROTA && item.PLACA) {
-                        // Armazena todas as variáveis do veículo indexadas pelo prefixo
                         dicionarioFrotas[item.FROTA] = {
                             placa: item.PLACA,
                             modelo: item.MODELO || "NÃO INFORMADO",
@@ -515,7 +531,6 @@
             }
         } catch (e) { console.error("Erro frota:", e); }
 
-        // Buscar Oficinas
         try {
             const resOficina = await fetch(URL_OFICINAS);
             if (resOficina.ok) {
@@ -539,11 +554,9 @@
         } catch (e) { console.error("Erro oficina:", e); }
     }
 
-    // Dispara o auto-preenchimento simultâneo de todas as variáveis da frota
     document.getElementById('selectFrota').addEventListener('change', function() {
         const frotaSelecionada = this.value;
         const veiculo = dicionarioFrotas[frotaSelecionada];
-        
         if (veiculo) {
             document.getElementById('txtPlaca').value = veiculo.placa;
             document.getElementById('txtModelo').value = veiculo.modelo;
@@ -552,7 +565,6 @@
         }
     });
 
-    // Função de cadastro manual expandida para novas colunas
     async function adicionarFrotaManual() {
         const novaFrota = prompt("Digite o número da nova Frota (Ex: 2470):");
         if (!novaFrota) return;
@@ -624,7 +636,6 @@
     document.getElementById('dataSolicitacao').valueAsDate = new Date();
     carregarBancoDeDados();
 
-    // Controle de Envio e Impressão
     document.getElementById('osForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnSalvar');
@@ -657,7 +668,10 @@
         const filialValor = document.getElementById('txtFilial').value;
         const cnpjValor = document.getElementById('txtCnpj').value;
 
-        // Injeta todas as informações dinâmicas no espelho industrial de impressão
+        const txtServico1 = document.getElementById('servico1').value;
+        const txtServico2 = document.getElementById('servico2').value || "---";
+        const txtServico3 = document.getElementById('servico3').value || "---";
+
         document.getElementById('printDataCidade').innerText = `Cascavel - PR, ${diaStr} de ${mesExtenso} de ${anoStr}.`;
         document.getElementById('printData').innerText = dataFormatadaBR;
         document.getElementById('printFrota').innerText = frotaValor;
@@ -666,7 +680,10 @@
         document.getElementById('printFilial').innerText = filialValor;
         document.getElementById('printCnpj').innerText = cnpjValor;
         document.getElementById('printOficina').innerText = document.getElementById('empresaParceira').value.toUpperCase();
-        document.getElementById('printDescricao').innerText = document.getElementById('descricao').value;
+        
+        document.getElementById('printServico1').innerText = `1º Serviço: ${txtServico1}`;
+        document.getElementById('printServico2').innerText = txtServico2 !== "---" ? `2º Serviço: ${txtServico2}` : "";
+        document.getElementById('printServico3').innerText = txtServico3 !== "---" ? `3º Serviço: ${txtServico3}` : "";
 
         const payload = {
             dataSolicitacao: dataFormatadaBR,
@@ -674,9 +691,12 @@
             placa: placaValor,
             modelo: modeloValor,
             filial: filialValor,
-            cnpj: cnpjValor, // Mapeia os novos parâmetros no payload do envio
+            cnpj: cnpjValor,
             empresaParceira: document.getElementById('empresaParceira').value,
-            descricao: document.getElementById('descricao').value
+            servico1: txtServico1,
+            servico2: txtServico2,
+            servico3: txtServico3,
+            descricao: `1º ${txtServico1} | 2º ${txtServico2} | 3º ${txtServico3}` 
         };
 
         try {

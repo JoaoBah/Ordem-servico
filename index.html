@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicitação de Ordem de Serviço - Movistar Logística</title>
+    <title>Painel de Ordem de Serviço - Movistar Logística</title>
     <style>
         /* Paleta de Cores baseada na Logo Movistar */
         :root {
@@ -25,33 +25,102 @@
         body { 
             background-color: var(--bg-screen); 
             color: var(--text-dark); 
-            padding: 10px 20px; 
+            padding: 15px; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
+            overflow: hidden; 
+            position: relative;
         }
 
+        /* Botão de Alternância Flutuante */
+        .btn-toggle-historico {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--movistar-blue);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 255, 0.2);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle-historico:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 255, 0.3);
+        }
+
+        /* Layout em Grade Dinâmica - Form e Histórico com 650px idênticos */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 650px 0px; 
+            gap: 0px;
+            width: auto;
+            max-width: 100%;
+            height: calc(100vh - 40px);
+            justify-content: center; 
+            align-content: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Quando aberto, o histórico ganha os mesmos 650px do formulário */
+        .dashboard-layout.historico-aberto {
+            grid-template-columns: 650px 650px;
+            gap: 20px;
+        }
+
+        .column-left, .column-right {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Controle de visibilidade do Histórico lateral */
+        .column-right {
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .dashboard-layout.historico-aberto .column-right {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Container Original Estilizado */
         .container { 
             background: var(--card-bg); 
             width: 100%; 
-            max-width: 820px; 
-            padding: 20px 30px; 
+            padding: 20px 25px; 
             border-radius: 12px; 
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); 
-            border-top: 6px solid var(--movistar-blue); 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); 
+            border-top: 5px solid var(--movistar-blue);
+            max-height: 100%;
+            overflow-y: auto;
         }
 
         .header { 
             text-align: center; 
             margin-bottom: 15px; 
             border-bottom: 2px solid #eef0f5; 
-            padding-bottom: 10px; 
+            padding-bottom: 8px; 
         }
         
         .logo-container {
-            max-width: 200px;
-            margin: 0 auto 5px auto;
+            max-width: 160px;
+            margin: 0 auto;
         }
 
         .logo-container img {
@@ -62,20 +131,19 @@
 
         .header h2 { 
             color: var(--text-dark); 
-            font-size: 19px; 
+            font-size: 18px; 
             text-transform: uppercase; 
             letter-spacing: 0.5px;
             font-weight: 700;
             margin-top: 5px;
         }
 
-        /* Seções compactadas */
         .form-section {
             background: #fafbfc;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            padding: 12px 20px;
-            margin-bottom: 12px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
         }
 
         .section-title {
@@ -83,7 +151,7 @@
             font-weight: 700;
             color: var(--movistar-blue);
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             letter-spacing: 0.8px;
             display: flex;
             align-items: center;
@@ -100,30 +168,23 @@
         .form-row { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 15px; 
+            gap: 12px; 
         }
 
-        /* Grid da frota otimizado para 3 colunas e economizar altura */
         .frota-grid-tela {
             display: grid;
-            grid-template-columns: 1.2fr 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
         }
 
-        /* Grid de serviços em duas colunas paralela */
         .servicos-grid-tela {
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 12px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         .form-group { 
-            margin-bottom: 2px; 
-        }
-
-        @media (max-width: 650px) {
-            .form-row, .frota-grid-tela, .servicos-grid-tela { grid-template-columns: 1fr !important; gap: 0; }
-            .form-group { margin-bottom: 10px; }
+            margin-bottom: 5px; 
         }
 
         label { 
@@ -131,34 +192,25 @@
             font-weight: 700; 
             color: #374151; 
             display: block; 
-            margin-bottom: 5px; 
+            margin-bottom: 4px; 
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         
-        input, textarea, select { 
+        input, select { 
             width: 100%; 
-            padding: 10px 12px; 
+            padding: 8px 10px; 
             border: 1px solid var(--border-color); 
             border-radius: 6px; 
-            font-size: 14px; 
+            font-size: 13px; 
             background-color: #fff; 
             color: var(--text-dark); 
-            transition: all 0.2s ease-in-out;
         }
 
         input:disabled {
             background-color: #f3f4f6;
             color: #000;
             font-weight: bold;
-            border: 1px solid var(--border-color);
             cursor: not-allowed;
-        }
-        
-        input:focus, textarea:focus, select:focus { 
-            outline: none; 
-            border-color: var(--movistar-blue); 
-            box-shadow: 0 0 0 3px rgba(0, 0, 255, 0.04); 
         }
 
         .search-input-container {
@@ -167,340 +219,365 @@
             position: relative;
         }
 
-        .search-input-container::before {
-            content: "🔍";
-            position: absolute;
-            left: 10px;
-            font-size: 13px;
-            color: #888;
-            pointer-events: none;
-        }
-
-        .search-input-container select {
-            padding-left: 32px;
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
+        .search-input-container select { padding-right: 35px; }
 
         .btn-add-shortcut {
             background-color: #f3f4f6;
             color: #111827;
             border: 1px solid var(--border-color);
             border-left: none;
-            padding: 10px 14px;
-            font-size: 14px;
+            padding: 8px 12px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             border-top-right-radius: 6px;
             border-bottom-right-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .btn-add-shortcut:hover {
-            background-color: #e5e7eb;
-            color: var(--movistar-blue);
+            position: absolute;
+            right: 0;
+            height: 100%;
         }
 
         button[type="submit"] { 
             background-color: var(--movistar-blue); 
             color: white; 
-            padding: 14px 20px; 
+            padding: 12px 20px; 
             border: none; 
             border-radius: 6px; 
             cursor: pointer; 
             width: 100%; 
-            font-size: 15px; 
+            font-size: 13px; 
             font-weight: 700; 
             text-transform: uppercase; 
             margin-top: 5px; 
-            letter-spacing: 0.5px;
-            transition: background-color 0.2s;
-        }
-        button[type="submit"]:hover { background-color: #0000cd; }
-
-        .print-header-layout, .print-grid, .print-textarea-lines, .signature-container, .footer-institutional { 
-            display: none; 
         }
 
-        /* ==========================================================================
-           ESTRUTURA DE IMPRESSÃO INDUSTRIAL AVANÇADA (MANUTENÇÃO DE BLOCO)
-           ========================================================================== */
+        /* ==========================================
+           ESTRUTURA DO PAINEL DE HISTÓRICO SIMÉTRICO
+           ========================================== */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #eef0f5;
+        }
+
+        .panel-header h3 {
+            font-size: 16px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .filter-bar {
+            display: grid;
+            grid-template-columns: 120px 180px 1fr;
+            gap: 10px;
+            background: #fafbfc;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+            color: #111827;
+            font-weight: 700;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #edf2f7;
+            color: #2d3748;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+        }
+
+        tr:hover { background-color: #f8fafc; }
+        .badge-frota { background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+
+        @media (max-width: 1350px) {
+            .dashboard-layout.historico-aberto { grid-template-columns: 1fr; height: auto; overflow: auto; }
+            body { overflow: auto; }
+            .column-right { height: 450px; }
+        }
+
+        /* Ocultação de elementos na Impressão Física */
+        .print-header-layout, .print-grid, .print-textarea-lines, .signature-container, .footer-institutional { display: none; }
+
         @media print {
-            body { background: white; padding: 0; margin: 0; display: block; min-height: auto; font-family: Arial, sans-serif; }
-            .container { max-width: 100%; box-shadow: none; padding: 0; border-top: none; }
-            
-            .header, #osForm, button { display: none !important; }
-
-            .print-header-layout {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border: 2px solid #000000;
-                padding: 15px;
-                margin-bottom: 25px;
-                background-color: #f5f5f5 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            .print-logo-box { width: 40%; }
-            .print-logo-box img { width: 100%; height: auto; }
-            .print-title-box { width: 55%; text-align: right; }
-            .print-title-box h1 { font-size: 22px; text-transform: uppercase; font-weight: bold; color: #000; letter-spacing: 0.5px; }
-            .print-title-box p { font-size: 11px; font-weight: bold; margin-top: 4px; color: #333; }
-
-            .print-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-                margin-bottom: 12px;
-            }
-            .print-block {
-                display: block !important;
-                border: 2px solid #000000;
-                padding: 8px 10px;
-                background: #ffffff;
-            }
-            .print-block.full-width {
-                grid-column: span 3;
-            }
-            .print-label {
-                font-size: 10px;
-                font-weight: bold;
-                text-transform: uppercase;
-                color: #000000;
-                border-bottom: 1px solid #000000;
-                padding-bottom: 2px;
-                margin-bottom: 4px;
-            }
-            .print-value {
-                font-size: 14px;
-                font-weight: bold;
-                color: #000000;
-                word-wrap: break-word;
-            }
-
-            .print-textarea-lines {
-                display: block !important;
-                border: 2px solid #000000;
-                padding: 15px;
-                margin-top: 15px;
-                margin-bottom: 25px;
-                min-height: 250px;
-                background: #ffffff;
-            }
-            .print-item-linha {
-                font-size: 14px;
-                font-weight: bold;
-                color: #000000;
-                margin-bottom: 10px;
-                border-bottom: 1px dashed #ccc;
-                padding-bottom: 6px;
-            }
-
-            .signature-container { 
-                display: flex !important; 
-                justify-content: space-between; 
-                align-items: flex-end;
-                margin-top: 70px; 
-                padding: 0 10px;
-            }
-            .signature-date-box { font-size: 13px; font-weight: bold; }
-            .signature-box { 
-                text-align: center; 
-                width: 320px; 
-                border-top: 2px solid #000000; 
-                padding-top: 6px; 
-                font-size: 14px; 
-                font-weight: bold;
-            }
-
-            .footer-institutional { 
-                display: block !important; 
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                text-align: center; 
-                border-top: 2px solid #000000; 
-                padding-top: 8px;
-                font-size: 11px;
-                font-weight: bold;
-                line-height: 1.4;
-                background-color: #f5f5f5 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
+            body { background: white; padding: 0; margin: 0; display: block; min-height: auto; }
+            .dashboard-layout { display: block; height: auto; }
+            .column-right, #osForm, .header, .btn-toggle-historico { display: none !important; }
+            .container { box-shadow: none; padding: 0; border-top: none; }
+            .print-header-layout { display: flex !important; align-items: center; justify-content: space-between; border: 2px solid #000; padding: 15px; margin-bottom: 25px; background-color: #f5f5f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-logo-box { width: 40%; } .print-logo-box img { width: 100%; height: auto; }
+            .print-title-box { width: 55%; text-align: right; } .print-title-box h1 { font-size: 22px; text-transform: uppercase; font-weight: bold; }
+            .print-grid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+            .print-block { display: block !important; border: 2px solid #000; padding: 8px 10px; background: #fff; }
+            .print-block.full-width { grid-column: span 3; }
+            .print-label { font-size: 10px; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 4px; }
+            .print-value { font-size: 14px; font-weight: bold; }
+            .print-textarea-lines { display: block !important; border: 2px solid #000; padding: 15px; margin-top: 15px; margin-bottom: 25px; min-height: 250px; }
+            .print-item-linha { font-size: 14px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 6px; }
+            .signature-container { display: flex !important; justify-content: space-between; align-items: flex-end; margin-top: 70px; }
+            .footer-institutional { display: block !important; position: fixed; bottom: 0; width: 100%; text-align: center; border-top: 2px solid #000; padding-top: 8px; font-size: 11px; font-weight: bold; background-color: #f5f5f5 !important; -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    
-    <div class="print-header-layout">
-        <div class="print-logo-box">
-            <img src="./img/LOGO MOVISTAR.png" alt="Movistar Logística">
-        </div>
-        <div class="print-title-box">
-            <h1>Ordem de Serviço</h1>
-            <p>SOLICITAÇÃO DE MANUTENÇÃO EXTERNA</p>
-        </div>
-    </div>
+<!-- BOTÃO DE ALTERNÂNCIA FLUTUANTE -->
+<button class="btn-toggle-historico" id="btnToggle" onclick="alternarPainelHistorico()">
+    <span id="btnToggleIcon">📋</span> <span id="btnToggleText">Ver Histórico</span>
+</button>
 
-    <div class="header">
-        <div class="logo-container">
-            <img src="./img/LOGO MOVISTAR.png" alt="Movistar Logística">
-        </div>
-        <h2>Ordem de Serviço de Manutenção</h2>
-    </div>
+<div class="dashboard-layout" id="layoutPrincipal">
     
-    <form id="osForm">
-        
-        <div class="form-section">
-            <div class="section-title">Identificação da Demanda</div>
-            
-            <div class="form-row" style="margin-bottom: 10px;">
-                <div class="form-group">
-                    <label for="dataSolicitacao">Data da Solicitação</label>
-                    <input type="date" id="dataSolicitacao" required>
+    <!-- COLUNA DA ESQUERDA: FORMULÁRIO COMPLETO -->
+    <div class="column-left">
+        <div class="container">
+            <div class="header">
+                <div class="logo-container">
+                    <img src="./img/LOGO MOVISTAR.png" alt="Movistar Logística">
                 </div>
-
-                <div class="form-group">
-                    <label for="selectFrota">Frota </label>
-                    <div class="search-input-container">
-                        <select id="selectFrota" required>
-                            <option value="" disabled selected>Buscando...</option>
-                        </select>
-                        <button type="button" class="btn-add-shortcut" onclick="adicionarFrotaManual()" title="Cadastrar nova frota">+</button>
+                <h2>Ordem de Serviço de Manutenção</h2>
+            </div>
+            
+            <form id="osForm">
+                <div class="form-section">
+                    <div class="section-title">Identificação da Demanda</div>
+                    <div class="form-row" style="margin-bottom: 10px;">
+                        <div class="form-group">
+                            <label for="dataSolicitacao">Data da Solicitação</label>
+                            <input type="date" id="dataSolicitacao" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="selectFrota">Frota</label>
+                            <div class="search-input-container">
+                                <select id="selectFrota" required>
+                                    <option value="" disabled selected>Selecione a Frota...</option>
+                                    <option value="2154">2154</option><option value="2260">2260</option><option value="2261">2261</option><option value="2263">2263</option><option value="2468">2468</option><option value="2469">2469</option><option value="2470">2470</option><option value="2471">2471</option><option value="2472">2472</option><option value="2473">2473</option><option value="2474">2474</option><option value="2475">2475</option><option value="2476">2476</option><option value="2477">2477</option><option value="2478">2478</option><option value="2479">2479</option><option value="2480">2480</option><option value="2481">2481</option><option value="2482">2482</option><option value="2483">2483</option><option value="2484">2484</option><option value="2485">2485</option><option value="2486">2486</option><option value="2487">2487</option><option value="2488">2488</option><option value="2489">2489</option><option value="2490">2490</option><option value="2491">2491</option><option value="2493">2493</option><option value="2494">2494</option><option value="2495">2495</option><option value="2496">2496</option><option value="2497">2497</option><option value="2498">2498</option><option value="2499">2499</option><option value="2500">2500</option><option value="2501">2501</option><option value="2502">2502</option><option value="2503">2503</option><option value="2504">2504</option><option value="2505">2505</option><option value="2506">2506</option><option value="2507">2507</option><option value="2508">2508</option><option value="2509">2509</option><option value="2510">2510</option><option value="2511">2511</option><option value="2512">2512</option><option value="2514">2514</option><option value="2515">2515</option><option value="2516">2516</option><option value="2517">2517</option><option value="2518">2518</option><option value="2519">2519</option><option value="2520">2520</option><option value="2522">2522</option><option value="2523">2523</option><option value="2524">2524</option><option value="2525">2525</option><option value="2526">2526</option><option value="2527">2527</option><option value="2528">2528</option><option value="2529">2529</option><option value="2530">2530</option><option value="2531">2531</option><option value="2532">2532</option><option value="2533">2533</option><option value="2534">2534</option><option value="2535">2535</option><option value="2536">2536</option><option value="2537">2537</option><option value="2538">2538</option><option value="2539">2539</option><option value="2540">2540</option><option value="2541">2541</option><option value="2542">2542</option><option value="2543">2543</option><option value="2544">2544</option><option value="2545">2545</option><option value="2546">2546</option><option value="2547">2547</option><option value="2548">2548</option><option value="2549">2549</option><option value="2550">2550</option><option value="2551">2551</option><option value="2552">2552</option><option value="2553">2553</option><option value="2554">2554</option><option value="2555">2555</option><option value="2601">2601</option><option value="2602">2602</option><option value="2603">2603</option><option value="2604">2604</option><option value="2605">2605</option><option value="2606">2606</option><option value="2607">2607</option><option value="2608">2608</option><option value="2609">2609</option><option value="2610">2610</option><option value="2611">2611</option><option value="2612">2612</option><option value="2613">2613</option><option value="2614">2614</option><option value="2615">2615</option><option value="2616">2616</option><option value="2617">2617</option><option value="2618">2618</option><option value="2619">2619</option><option value="2620">2620</option><option value="2621">2621</option><option value="2623">2623</option><option value="2624">2624</option><option value="2625">2625</option><option value="2854">2854</option><option value="3150">3150</option><option value="3305">3305</option><option value="3201">3201</option><option value="3422">3422</option><option value="3420">3420</option><option value="3418">3418</option><option value="3601">3601</option><option value="3602">3602</option><option value="3410">3410</option><option value="3423">3423</option><option value="2258">2258</option><option value="2255">2255</option><option value="2058">2058</option><option value="2257">2257</option><option value="4356">4356</option><option value="4362">4362</option><option value="4366">4366</option><option value="4371">4371</option><option value="4372">4372</option><option value="4377">4377</option><option value="4380">4380</option><option value="4388">4388</option><option value="4038">4038</option><option value="4001">4001</option><option value="4006">4006</option><option value="4017">4017</option><option value="4023">4023</option><option value="4035">4035</option><option value="4036">4036</option><option value="4053">4053</option><option value="4062">4062</option><option value="6073">6073</option><option value="2622">2622</option><option value="1002">1002</option><option value="1003">1003</option><option value="1004">1004</option><option value="1005">1005</option>
+                                </select>
+                                <button type="button" class="btn-add-shortcut" onclick="adicionarFrotaManual()">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="frota-grid-tela">
+                        <div class="form-group">
+                            <label for="txtPlaca">Placa</label>
+                            <input type="text" id="txtPlaca" placeholder="Automático" disabled required>
+                        </div>
+                        <div class="form-group">
+                            <label for="txtModelo">Modelo Veículo</label>
+                            <input type="text" id="txtModelo" placeholder="Automático" disabled required>
+                        </div>
+                        <div class="form-group">
+                            <label for="txtFilial">Filial Movistar</label>
+                            <input type="text" id="txtFilial" placeholder="Automático" disabled required>
+                        </div>
+                        <div class="form-group" style="grid-column: span 3; margin-top: 5px;">
+                            <label for="txtCnpj">CNPJ da Frota</label>
+                            <input type="text" id="txtCnpj" placeholder="Automático" disabled required>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="frota-grid-tela">
-                <div class="form-group">
-                    <label for="txtPlaca">Placa</label>
-                    <input type="text" id="txtPlaca" placeholder="Automático" disabled required>
+                <div class="form-section">
+                    <div class="section-title">Direcionamento</div>
+                    <div class="form-group">
+                        <label for="empresaParceira">Oficina / Prestador de Serviço</label>
+                        <div class="search-input-container">
+                            <select id="empresaParceira" required>
+                                <option value="" disabled selected>Selecione o Fornecedor...</option>
+                                <option value="MOADIESEL">MOADIESEL</option><option value="MOLAS TREVO">MOLAS TREVO</option><option value="ESPUMOSO">ESPUMOSO</option><option value="CHASSI LASER">CHASSI LASER</option><option value="BETÃO DIESEL">BETÃO DIESEL</option><option value="MOADIESEL CHAVEIRO">MOADIESEL CHAVEIRO</option>
+                            </select>
+                            <button type="button" class="btn-add-shortcut" onclick="adicionarOficinaManual()">+</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="txtModelo">Modelo Veículo</label>
-                    <input type="text" id="txtModelo" placeholder="Automático" disabled required>
+                <div class="form-section">
+                    <div class="section-title">Especificação Técnica dos Serviços</div>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label for="servico1">1º Serviço Solicitado (Obrigatório)</label>
+                        <input type="text" id="servico1" placeholder="Ex: Troca de óleo do motor e filtros" required>
+                    </div>
+                    <div class="servicos-grid-tela">
+                        <div class="form-group">
+                            <label for="servico2">2º Serviço Solicitado</label>
+                            <input type="text" id="servico2" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label for="servico3">3º Serviço Solicitado</label>
+                            <input type="text" id="servico3" placeholder="">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="txtFilial">Filial Movistar</label>
-                    <input type="text" id="txtFilial" placeholder="Automático" disabled required>
-                </div>
-
-                <div class="form-group" style="grid-column: span 3; margin-top: 5px;">
-                    <label for="txtCnpj">CNPJ da Frota</label>
-                    <input type="text" id="txtCnpj" placeholder="Automático" disabled required>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <div class="section-title">Direcionamento</div>
-            <div class="form-group">
-                <label for="empresaParceira">Oficina / Prestador de Serviço</label>
-                <div class="search-input-container">
-                    <select id="empresaParceira" required>
-                        <option value="" disabled selected>Buscando...</option>
-                    </select>
-                    <button type="button" class="btn-add-shortcut" onclick="adicionarOficinaManual()" title="Cadastrar nova oficina">+</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <div class="section-title">Especificação Técnica dos Serviços</div>
-            
-            <div class="form-group" style="margin-bottom: 10px;">
-                <label for="servico1">1º Serviço Solicitado (Obrigatório)</label>
-                <input type="text" id="servico1" placeholder="Ex: Troca de óleo do motor e filtros" required>
-            </div>
-
-            <div class="servicos-grid-tela">
-                <div class="form-group">
-                    <label for="servico2">2º Serviço Solicitado</label>
-                    <input type="text" id="servico2" placeholder="">
-                </div>
-
-                <div class="form-group">
-                    <label for="servico3">3º Serviço Solicitado</label>
-                    <input type="text" id="servico3" placeholder="">
-                </div>
-            </div>
-        </div>
-
-        <button type="submit" id="btnSalvar">
-            <span>Salvar no Sistema e Imprimir OS</span>
-        </button>
-    </form>
-
-    <div class="print-grid">
-        <div class="print-block">
-            <div class="print-label">Data Solicitação</div>
-            <div class="print-value" id="printData"></div>
-        </div>
-        <div class="print-block">
-            <div class="print-label">Frota / Prefixo</div>
-            <div class="print-value" id="printFrota"></div>
-        </div>
-        <div class="print-block">
-            <div class="print-label">Placa</div>
-            <div class="print-value" id="printPlaca"></div>
-        </div>
-        <div class="print-block">
-            <div class="print-label">Modelo Veículo</div>
-            <div class="print-value" id="printModelo"></div>
-        </div>
-        <div class="print-block">
-            <div class="print-label">Filial Emissora</div>
-            <div class="print-value" id="printFilial"></div>
-        </div>
-        <div class="print-block">
-            <div class="print-label">CNPJ Empresa</div>
-            <div class="print-value" id="printCnpj"></div>
-        </div>
-        <div class="print-block full-width">
-            <div class="print-label">Oficina / Prestador de Serviço Destinado</div>
-            <div class="print-value" id="printOficina"></div>
+                <button type="submit" id="btnSalvar"><span>Salvar no Sistema e Imprimir OS</span></button>
+            </form>
         </div>
     </div>
 
-    <div class="print-textarea-lines">
-        <div class="print-label" style="margin-bottom: 15px;">Relação de Serviços a Serem Executados</div>
-        <div class="print-item-linha" id="printServico1"></div>
-        <div class="print-item-linha" id="printServico2"></div>
-        <div class="print-item-linha" id="printServico3"></div>
+    <!-- COLUNA DA DIREITA: HISTÓRICO EXPANSÍVEL SIMÉTRICO (650px) -->
+    <div class="column-right">
+        <div class="container" style="display: flex; flex-direction: column;">
+            <div class="panel-header">
+                <h3>Histórico de Ordens de Serviço</h3>
+                <span id="totalRegistros" style="font-size: 13px; font-weight: bold; color: var(--movistar-blue);">Carregando histórico...</span>
+            </div>
+
+            <!-- Filtros Inteligentes -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Frota</label>
+                    <input type="text" id="filtroFrota" placeholder="2470" oninput="filtrarHistorico()">
+                </div>
+                <div class="filter-group">
+                    <label>Prestador / Oficina</label>
+                    <input type="text" id="filtroPrestador" placeholder="Oficina..." oninput="filtrarHistorico()">
+                </div>
+                <div class="filter-group">
+                    <label>Buscar por Serviço</label>
+                    <input type="text" id="filtroServico" placeholder="Ex: Freio, óleo..." oninput="filtrarHistorico()">
+                </div>
+            </div>
+
+            <!-- Tabela Sincronizada -->
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 90px;">Data</th>
+                            <th style="width: 70px;">Frota</th>
+                            <th style="width: 160px;">Prestador</th>
+                            <th>Serviços Solicitados</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dadosHistorico">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 20px; color: #888;">Buscando dados na planilha Movistar...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="signature-container">
-        <div class="signature-date-box" id="printDataCidade">
-            Cascavel - PR, ____ de _________________ de 2026.
-        </div>
-        <div class="signature-box">
-            MOVISTAR OPERAÇÕES LOGÍSTICAS
-        </div>
-    </div>
+</div>
 
-    <div class="footer-institutional">
-        <strong>MOVISTAR OPERAÇÕES LOGÍSTICAS LTDA</strong><br>
-        AV BRASIL, 333 SALA 03 - PACAEMBU - CEP: 85816-302 - CASCAVEL - PR<br>
-        Fone: 45 2101-3077 | E-mail: transporte@destromacro.com.br
-    </div>
+<!-- COMPONENTES DA FOLHA DE IMPRESSÃO FÍSICA -->
+<div class="print-header-layout">
+    <div class="print-logo-box"><img src="./img/LOGO MOVISTAR.png"></div>
+    <div class="print-title-box"><h1>Ordem de Serviço</h1><p>SOLICITAÇÃO DE MANUTENÇÃO EXTERNA</p></div>
+</div>
+<div class="print-grid">
+    <div class="print-block"><div class="print-label">Data Solicitação</div><div class="print-value" id="printData"></div></div>
+    <div class="print-block"><div class="print-label">Frota / Prefixo</div><div class="print-value" id="printFrota"></div></div>
+    <div class="print-block"><div class="print-label">Placa</div><div class="print-value" id="printPlaca"></div></div>
+    <div class="print-block"><div class="print-label">Modelo Veículo</div><div class="print-value" id="printModelo"></div></div>
+    <div class="print-block"><div class="print-label">Filial Emissora</div><div class="print-value" id="printFilial"></div></div>
+    <div class="print-block"><div class="print-label">CNPJ Empresa</div><div class="print-value" id="printCnpj"></div></div>
+    <div class="print-block full-width"><div class="print-label">Oficina / Prestador de Serviço Destinado</div><div class="print-value" id="printOficina"></div></div>
+</div>
+<div class="print-textarea-lines">
+    <div class="print-label" style="margin-bottom: 15px;">Relação de Serviços a Serem Executados</div>
+    <div class="print-item-linha" id="printServico1"></div>
+    <div class="print-item-linha" id="printServico2"></div>
+    <div class="print-item-linha" id="printServico3"></div>
+</div>
+<div class="signature-container">
+    <div class="signature-date-box" id="printDataCidade">Cascavel - PR, ____ de _________________ de 2026.</div>
+    <div class="signature-box">MOVISTAR OPERAÇÕES LOGÍSTICAS</div>
+</div>
+<div class="footer-institutional">
+    <strong>MOVISTAR OPERAÇÕES LOGÍSTICAS LTDA</strong><br>AV BRASIL, 333 SALA 03 - PACAEMBU - CEP: 85816-302 - CASCAVEL - PR<br>Fone: 45 2101-3077 | E-mail: transporte@destromacro.com.br
 </div>
 
 <script>
     const URL_SALVAR = "https://n8nd-bjfva4gshggrgbe8.eastus-01.azurewebsites.net/webhook/ordem-servico-caminhao";
     const URL_FROTA = "https://n8nd-bjfva4gshggrgbe8.eastus-01.azurewebsites.net/webhook/buscar-frotas";
     const URL_OFICINAS = "https://n8nd-bjfva4gshggrgbe8.eastus-01.azurewebsites.net/webhook/buscar-oficinas";
-    
     const URL_CAD_FROTA = "https://n8nd-bjfva4gshggrgbe8.eastus-01.azurewebsites.net/webhook/cadastrar-frota";
     const URL_CAD_OFICINA = "https://n8nd-bjfva4gshggrgbe8.eastus-01.azurewebsites.net/webhook/cadastrar-prestador";
+    const URL_HISTORICO = "https://n8nd-bjfva4gshggrgbe8.eastus-01.azurewebsites.net/webhook/buscar-ordens";
 
     let dicionarioFrotas = {};
+    let bancoOrdensCompleto = []; 
+
+    function alternarPainelHistorico() {
+        const layout = document.getElementById('layoutPrincipal');
+        const btnText = document.getElementById('btnToggleText');
+        const btnIcon = document.getElementById('btnToggleIcon');
+        
+        layout.classList.toggle('historico-aberto');
+        
+        if(layout.classList.contains('historico-aberto')) {
+            btnText.innerText = "Fechar";
+            btnIcon.innerText = "✖";
+        } else {
+            btnText.innerText = "Ver Histórico";
+            btnIcon.innerText = "📋";
+        }
+    }
+
+    function obterValorCamaleao(obj, termosBusca) {
+        if (!obj || typeof obj !== 'object') return "";
+        const chaves = Object.keys(obj);
+        for (let termo of termosBusca) {
+            const chaveEncontrada = chaves.find(k => k.toLowerCase().trim() === termo.toLowerCase().trim());
+            if (chaveEncontrada && obj[chaveEncontrada] !== undefined && obj[chaveEncontrada] !== null) {
+                let valor = obj[chaveEncontrada];
+                if (typeof valor === 'object') return (valor.value || JSON.stringify(valor)).toString();
+                return valor.toString();
+            }
+        }
+        return "";
+    }
+
+    function construirDescricaoServicos(item) {
+        let descPronta = obterValorCamaleao(item, ['descricao', 'descrição', 'descricaoservico']);
+        if (descPronta && descPronta !== "---") return descPronta;
+
+        let s1 = obterValorCamaleao(item, ['Primeiro serviço', 'Primeiro servico', 'servico1', 'serviço1']);
+        let s2 = obterValorCamaleao(item, ['Segundo serviço', 'Segundo servico', 'servico2', 'serviço2']);
+        let s3 = obterValorCamaleao(item, ['Terceiro serviço', 'Terceiro servico', 'servico3', 'serviço3']);
+
+        let arr = [];
+        if (s1 && s1 !== "---") arr.push(`1º ${s1}`);
+        if (s2 && s2 !== "---") arr.push(`2º ${s2}`);
+        if (s3 && s3 !== "---") arr.push(`3º ${s3}`);
+
+        return arr.length > 0 ? arr.join(" | ") : "---";
+    }
 
     async function carregarBancoDeDados() {
         try {
@@ -509,27 +586,27 @@
                 let frotas = await resFrota.json();
                 if (!Array.isArray(frotas) && frotas.frotas) frotas = frotas.frotas;
                 if (!Array.isArray(frotas)) frotas = [frotas];
-
                 const selectFrota = document.getElementById('selectFrota');
-                selectFrota.innerHTML = '<option value="" disabled selected>Selecione a Frota...</option>';
                 
                 frotas.forEach(f => {
                     const item = f.json || f;
-                    if(item.FROTA && item.PLACA) {
-                        dicionarioFrotas[item.FROTA] = {
-                            placa: item.PLACA,
-                            modelo: item.MODELO || "NÃO INFORMADO",
-                            filial: item.FILIAL || "NÃO INFORMADO",
-                            cnpj: item.CNPJ || "NÃO INFORMADO"
+                    let frotaNum = item.FROTA || item.frota || item.Frota;
+                    let placaTexto = item.PLACA || item.placa || item.Placa;
+                    if(frotaNum && placaTexto) {
+                        dicionarioFrotas[frotaNum] = { 
+                            placa: placaTexto, 
+                            modelo: item.MODELO || item.modelo || "NÃO INFORMADO", 
+                            filial: item.FILIAL || item.filial || "NÃO INFORMADO", 
+                            cnpj: item.CNPJ || item.cnpj || "NÃO INFORMADO" 
                         };
-                        let opt = document.createElement('option');
-                        opt.value = item.FROTA;
-                        opt.innerText = item.FROTA;
-                        selectFrota.appendChild(opt);
+                        if (![...selectFrota.options].some(o => o.value === frotaNum.toString())) {
+                            let opt = document.createElement('option'); opt.value = frotaNum; opt.innerText = frotaNum;
+                            selectFrota.appendChild(opt);
+                        }
                     }
                 });
             }
-        } catch (e) { console.error("Erro frota:", e); }
+        } catch (e) { console.error(e); }
 
         try {
             const resOficina = await fetch(URL_OFICINAS);
@@ -537,26 +614,92 @@
                 let oficinas = await resOficina.json();
                 if (!Array.isArray(oficinas) && oficinas.oficinas) oficinas = oficinas.oficinas;
                 if (!Array.isArray(oficinas)) oficinas = [oficinas];
-
                 const selectOficina = document.getElementById('empresaParceira');
-                selectOficina.innerHTML = '<option value="" disabled selected>Selecione o Fornecedor...</option>';
                 
                 oficinas.forEach(o => {
                     const item = o.json || o;
-                    if(item.NOME) {
-                        let opt = document.createElement('option');
-                        opt.value = item.NOME;
-                        opt.innerText = item.NOME;
-                        selectOficina.appendChild(opt);
+                    let nomeOficina = item.NOME || item.nome || item.Nome;
+                    if(nomeOficina) {
+                        if (![...selectOficina.options].some(opt => opt.value === nomeOficina)) {
+                            let opt = document.createElement('option'); opt.value = nomeOficina; opt.innerText = nomeOficina;
+                            selectOficina.appendChild(opt);
+                        }
                     }
                 });
             }
-        } catch (e) { console.error("Erro oficina:", e); }
+        } catch (e) { console.error(e); }
+
+        carregarHistoricoTabela();
+    }
+
+    async function carregarHistoricoTabela() {
+        try {
+            const resHist = await fetch(URL_HISTORICO);
+            if (!resHist.ok) throw new Error("Erro na requisição");
+            let dadosBrutos = await resHist.json();
+            let listaTratada = [];
+
+            if (Array.isArray(dadosBrutos)) {
+                listaTratada = dadosBrutos;
+            } else if (dadosBrutos && typeof dadosBrutos === 'object') {
+                let chavesPossiveis = ['ordens', 'data', 'rows', 'output', 'body'];
+                for (let chave of chavesPossiveis) {
+                    if (Array.isArray(dadosBrutos[chave])) {
+                        listaTratada = dadosBrutos[chave];
+                        break;
+                    }
+                }
+            }
+
+            bancoOrdensCompleto = listaTratada.map(item => item.json || item).filter(item => item && typeof item === 'object');
+            bancoOrdensCompleto.reverse(); 
+            renderizarTabela(bancoOrdensCompleto);
+        } catch (e) {
+            document.getElementById('dadosHistorico').innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Erro ao carregar o histórico.</td></tr>`;
+        }
+    }
+
+    function renderizarTabela(lista) {
+        const tbody = document.getElementById('dadosHistorico');
+        document.getElementById('totalRegistros').innerText = `${lista.length} registros`;
+        if(lista.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 25px; color: #888;">Nenhuma OS registrada.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = "";
+        lista.forEach(item => {
+            let tr = document.createElement('tr');
+            let dataOS = obterValorCamaleao(item, ['data', 'dataSolicitacao', 'datasolicitacao']);
+            let frotaOS = obterValorCamaleao(item, ['frota', 'prefixo', 'caminhao']);
+            let prestadorOS = obterValorCamaleao(item, ['empresaparceira', 'prestador', 'oficina', 'nome']);
+            let descOS = construirDescricaoServicos(item);
+
+            tr.innerHTML = `
+                <td>${dataOS || "---"}</td>
+                <td><span class="badge-frota">${frotaOS || "---"}</span></td>
+                <td>${(prestadorOS || "---").toUpperCase()}</td>
+                <td title="${descOS}">${descOS}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filtrarHistorico() {
+        const fFrota = document.getElementById('filtroFrota').value.toLowerCase();
+        const fPrestador = document.getElementById('filtroPrestador').value.toLowerCase();
+        const fServico = document.getElementById('filtroServico').value.toLowerCase();
+
+        const listaFiltrada = bancoOrdensCompleto.filter(item => {
+            let frotaTexto = obterValorCamaleao(item, ['frota', 'prefixo', 'caminhao']).toLowerCase();
+            let prestadorTexto = obterValorCamaleao(item, ['empresaparceira', 'prestador', 'oficina', 'nome']).toLowerCase();
+            let descricaoTexto = construirDescricaoServicos(item).toLowerCase();
+            return frotaTexto.includes(fFrota) && prestadorTexto.includes(fPrestador) && descricaoTexto.includes(fServico);
+        });
+        renderizarTabela(listaFiltrada);
     }
 
     document.getElementById('selectFrota').addEventListener('change', function() {
-        const frotaSelecionada = this.value;
-        const veiculo = dicionarioFrotas[frotaSelecionada];
+        const veiculo = dicionarioFrotas[this.value];
         if (veiculo) {
             document.getElementById('txtPlaca').value = veiculo.placa;
             document.getElementById('txtModelo').value = veiculo.modelo;
@@ -566,71 +709,43 @@
     });
 
     async function adicionarFrotaManual() {
-        const novaFrota = prompt("Digite o número da nova Frota (Ex: 2470):");
-        if (!novaFrota) return;
-        const novaPlaca = prompt(`Digite a Placa para a frota ${novaFrota} (Ex: ABC-1234):`).toUpperCase();
-        if (!novaPlaca) return;
-        const novoModelo = prompt(`Digite o Modelo do veículo (Ex: TOCO/TRUCK):`).toUpperCase();
-        if (!novoModelo) return;
-        const novaFilial = prompt(`Digite a Filial vinculada (Ex: DESTRO CASCAVEL):`).toUpperCase();
-        if (!novaFilial) return;
-        const novoCnpj = prompt(`Digite o CNPJ da frota/empresa (Ex: 00.000.000/0001-00):`);
-        if (!novoCnpj) return;
+        const novaFrota = prompt("Número da Frota (Ex: 2470):"); if (!novaFrota) return;
+        const novaPlaca = prompt("Placa (Ex: ABC-1234):").toUpperCase(); if (!novaPlaca) return;
+        const novoModelo = prompt("Modelo (Ex: TRUCK):").toUpperCase(); if (!novoModelo) return;
+        const novaFilial = prompt("Filial (Ex: CASCAVEL):").toUpperCase(); if (!novaFilial) return;
+        const novoCnpj = prompt("CNPJ (Ex: 00.000.000/0001-00):"); if (!novoCnpj) return;
 
         try {
             const response = await fetch(URL_CAD_FROTA, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ FROTA: novaFrota, PLACA: novaPlaca, MODELO: novoModelo, FILIAL: novaFilial, CNPJ: novoCnpj })
             });
-
             if (response.ok) {
                 dicionarioFrotas[novaFrota] = { placa: novaPlaca, modelo: novoModelo, filial: novaFilial, cnpj: novoCnpj };
                 const selectFrota = document.getElementById('selectFrota');
-                let opt = document.createElement('option');
-                opt.value = novaFrota; opt.innerText = novaFrota;
-                selectFrota.appendChild(opt);
-                
-                selectFrota.value = novaFrota;
-                document.getElementById('txtPlaca').value = novaPlaca;
-                document.getElementById('txtModelo').value = novoModelo;
-                document.getElementById('txtFilial').value = novaFilial;
-                document.getElementById('txtCnpj').value = novoCnpj;
-                alert(`Frota ${novaFrota} adicionada e sincronizada com sucesso!`);
-            } else {
-                alert("Erro ao salvar o cadastro na Azure. Código: " + response.status);
+                let opt = document.createElement('option'); opt.value = novaFrota; opt.innerText = novaFrota;
+                selectFrota.appendChild(opt); selectFrota.value = novaFrota;
+                document.getElementById('txtPlaca').value = novaPlaca; document.getElementById('txtModelo').value = novoModelo;
+                document.getElementById('txtFilial').value = novaFilial; document.getElementById('txtCnpj').value = novoCnpj;
+                alert("Frota adicionada com sucesso!");
             }
-        } catch (err) {
-            console.error(err);
-            alert("Não foi possível conectar com o fluxo de cadastro na Azure.");
-        }
+        } catch (err) { alert("Falha na conexão."); }
     }
 
     async function adicionarOficinaManual() {
-        const novaOficina = prompt("Digite o nome da nova oficina/fornecedor:").toUpperCase();
-        if (!novaOficina) return;
-
+        const novaOficina = prompt("Nome da oficina:").toUpperCase(); if (!novaOficina) return;
         try {
             const response = await fetch(URL_CAD_OFICINA, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ NOME: novaOficina })
             });
-
             if (response.ok) {
                 const selectOficina = document.getElementById('empresaParceira');
-                let opt = document.createElement('option');
-                opt.value = novaOficina; opt.innerText = novaOficina;
-                selectOficina.appendChild(opt);
-                selectOficina.value = novaOficina;
-                alert(`Fornecedor ${novaOficina} cadastrado com sucesso no banco de dados!`);
-            } else {
-                alert("Erro ao salvar o fornecedor na Azure. Código: " + response.status);
+                let opt = document.createElement('option'); opt.value = novaOficina; opt.innerText = novaOficina;
+                selectOficina.appendChild(opt); selectOficina.value = novaOficina;
+                alert("Fornecedor cadastrado!");
             }
-        } catch (err) {
-            console.error(err);
-            alert("Não foi possível conectar com o fluxo de cadastro na Azure.");
-        }
+        } catch (err) { alert("Falha na conexão."); }
     }
 
     document.getElementById('dataSolicitacao').valueAsDate = new Date();
@@ -638,25 +753,14 @@
 
     document.getElementById('osForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const btn = document.getElementById('btnSalvar');
-        const btnText = btn.querySelector('span');
-        btnText.innerText = "Registrando no sistema...";
-        btn.disabled = true;
+        const btn = document.getElementById('btnSalvar'); const btnText = btn.querySelector('span');
+        btnText.innerText = "Registrando..."; btn.disabled = true;
 
         let dataOriginal = document.getElementById('dataSolicitacao').value;
-        let dataFormatadaBR = "";
-        let diaStr = "", mesStr = "", anoStr = "";
-
+        let dataFormatadaBR = "", diaStr = "", mesStr = "", anoStr = "";
         if (dataOriginal) {
             const [ano, mes, dia] = dataOriginal.split('-');
-            diaStr = dia; mesStr = mes; anoStr = ano;
-            dataFormatadaBR = `${dia}/${mes}/${ano}`;
-        } else {
-            const hoje = new Date();
-            diaStr = String(hoje.getDate()).padStart(2, '0');
-            mesStr = String(hoje.getMonth() + 1).padStart(2, '0');
-            anoStr = hoje.getFullYear();
-            dataFormatadaBR = `${diaStr}/${mesStr}/${anoStr}`;
+            diaStr = dia; mesStr = mes; anoStr = ano; dataFormatadaBR = `${dia}/${mes}/${ano}`;
         }
 
         const mesesExtenso = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
@@ -667,7 +771,6 @@
         const modeloValor = document.getElementById('txtModelo').value;
         const filialValor = document.getElementById('txtFilial').value;
         const cnpjValor = document.getElementById('txtCnpj').value;
-
         const txtServico1 = document.getElementById('servico1').value;
         const txtServico2 = document.getElementById('servico2').value || "---";
         const txtServico3 = document.getElementById('servico3').value || "---";
@@ -680,52 +783,31 @@
         document.getElementById('printFilial').innerText = filialValor;
         document.getElementById('printCnpj').innerText = cnpjValor;
         document.getElementById('printOficina').innerText = document.getElementById('empresaParceira').value.toUpperCase();
-        
         document.getElementById('printServico1').innerText = `1º Serviço: ${txtServico1}`;
         document.getElementById('printServico2').innerText = txtServico2 !== "---" ? `2º Serviço: ${txtServico2}` : "";
         document.getElementById('printServico3').innerText = txtServico3 !== "---" ? `3º Serviço: ${txtServico3}` : "";
 
-        const payload = {
-            dataSolicitacao: dataFormatadaBR,
-            frota: frotaValor,
-            placa: placaValor,
-            modelo: modeloValor,
-            filial: filialValor,
-            cnpj: cnpjValor,
-            empresaParceira: document.getElementById('empresaParceira').value,
-            servico1: txtServico1,
-            servico2: txtServico2,
-            servico3: txtServico3,
+        const payload = { 
+            dataSolicitacao: dataFormatadaBR, frota: frotaValor, placa: placaValor, modelo: modeloValor, filial: filialValor, cnpj: cnpjValor, 
+            empresaParceira: document.getElementById('empresaParceira').value, servico1: txtServico1, servico2: txtServico2, servico3: txtServico3, 
             descricao: `1º ${txtServico1} | 2º ${txtServico2} | 3º ${txtServico3}` 
         };
 
         try {
             const response = await fetch(URL_SALVAR, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
-
             if (response.ok) {
                 alert("Ordem de Serviço registrada com sucesso!");
                 window.print();
-                
                 document.getElementById('osForm').reset();
                 document.getElementById('dataSolicitacao').valueAsDate = new Date();
-                document.getElementById('txtPlaca').value = "";
-                document.getElementById('txtModelo').value = "";
-                document.getElementById('txtFilial').value = "";
-                document.getElementById('txtCnpj').value = "";
-            } else {
-                alert("Erro ao salvar no n8n. Código: " + response.status);
+                document.getElementById('txtPlaca').value = ""; document.getElementById('txtModelo').value = "";
+                document.getElementById('txtFilial').value = ""; document.getElementById('txtCnpj').value = "";
+                carregarHistoricoTabela();
             }
-        } catch (error) {
-            console.error("Erro:", error);
-            alert("Falha de conexão com o n8n na Azure.");
-        } finally {
-            btnText.innerText = "Salvar no Sistema e Imprimir OS";
-            btn.disabled = false;
-        }
+        } catch (error) { alert("Falha ao salvar."); }
+        finally { btnText.innerText = "Salvar no Sistema e Imprimir OS"; btn.disabled = false; }
     });
 </script>
 </body>

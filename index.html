@@ -272,7 +272,7 @@
 
         .filter-bar {
             display: grid;
-            grid-template-columns: 120px 180px 1fr;
+            grid-template-columns: 80px 80px 150px 1fr;
             gap: 10px;
             background: #fafbfc;
             padding: 10px;
@@ -316,11 +316,16 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 250px;
+            max-width: 200px;
         }
 
         tr:hover { background-color: #f8fafc; }
         .badge-frota { background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+        .badge-os-numero { background: #e5e7eb; color: #1f2937; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+        
+        /* Checkbox na tabela */
+        .td-check, .th-check { text-align: center; width: 35px; padding: 8px 5px; }
+        .td-check input[type="checkbox"], .th-check input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
 
         @media (max-width: 1350px) {
             .dashboard-layout.historico-aberto { grid-template-columns: 1fr; height: auto; overflow: auto; }
@@ -337,8 +342,10 @@
             .column-right, #osForm, .header, .btn-toggle-historico { display: none !important; }
             .container { box-shadow: none; padding: 0; border-top: none; }
             .print-header-layout { display: flex !important; align-items: center; justify-content: space-between; border: 2px solid #000; padding: 15px; margin-bottom: 25px; background-color: #f5f5f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .print-logo-box { width: 40%; } .print-logo-box img { width: 100%; height: auto; }
-            .print-title-box { width: 55%; text-align: right; } .print-title-box h1 { font-size: 22px; text-transform: uppercase; font-weight: bold; }
+            .print-logo-box { width: 35%; } .print-logo-box img { width: 100%; height: auto; }
+            .print-title-box { width: 60%; text-align: right; } 
+            .print-title-box h1 { font-size: 22px; text-transform: uppercase; font-weight: bold; }
+            .print-title-box .print-os-tag { font-size: 16px; font-weight: 900; color: #000; margin-top: 3px; background: #ddd; display: inline-block; padding: 2px 8px; border: 1px solid #000; }
             .print-grid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
             .print-block { display: block !important; border: 2px solid #000; padding: 8px 10px; background: #fff; }
             .print-block.full-width { grid-column: span 3; }
@@ -452,11 +459,18 @@
         <div class="container" style="display: flex; flex-direction: column;">
             <div class="panel-header">
                 <h3>Histórico de Ordens de Serviço</h3>
-                <span id="totalRegistros" style="font-size: 13px; font-weight: bold; color: var(--movistar-blue);">Carregando histórico...</span>
+                <div style="text-align: right; font-size: 13px; font-weight: bold; color: var(--movistar-blue);">
+                    <span id="totalRegistros">Carregando...</span> 
+                    <span id="contadorSelecionados" style="color: #10b981; margin-left: 8px;">(0 selecionadas)</span>
+                </div>
             </div>
 
-            <!-- Filtros Inteligentes -->
+            <!-- Filtros Inteligentes (Reorganizados para incluir Nº OS) -->
             <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Nº OS</label>
+                    <input type="text" id="filtroNumeroOS" placeholder="Ex: 5" oninput="filtrarHistorico()">
+                </div>
                 <div class="filter-group">
                     <label>Frota</label>
                     <input type="text" id="filtroFrota" placeholder="2470" oninput="filtrarHistorico()">
@@ -476,15 +490,17 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 90px;">Data</th>
-                            <th style="width: 70px;">Frota</th>
-                            <th style="width: 160px;">Prestador</th>
+                            <th class="th-check"><input type="checkbox" id="checkMarcarTodos" onclick="marcarDesmarcarTodos(this)"></th>
+                            <th style="width: 55px;">Nº OS</th>
+                            <th style="width: 80px;">Data</th>
+                            <th style="width: 65px;">Frota</th>
+                            <th style="width: 140px;">Prestador</th>
                             <th>Serviços Solicitados</th>
                         </tr>
                     </thead>
                     <tbody id="dadosHistorico">
                         <tr>
-                            <td colspan="4" style="text-align: center; padding: 20px; color: #888;">Buscando dados na planilha Movistar...</td>
+                            <td colspan="6" style="text-align: center; padding: 20px; color: #888;">Buscando dados na planilha Movistar...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -497,7 +513,11 @@
 <!-- COMPONENTES DA FOLHA DE IMPRESSÃO FÍSICA -->
 <div class="print-header-layout">
     <div class="print-logo-box"><img src="./img/LOGO MOVISTAR.png"></div>
-    <div class="print-title-box"><h1>Ordem de Serviço</h1><p>SOLICITAÇÃO DE MANUTENÇÃO EXTERNA</p></div>
+    <div class="print-title-box">
+        <h1>Ordem de Serviço</h1>
+        <p>SOLICITAÇÃO DE MANUTENÇÃO EXTERNA</p>
+        <div class="print-os-tag">Nº OS: <span id="printNumeroOS">---</span></div>
+    </div>
 </div>
 <div class="print-grid">
     <div class="print-block"><div class="print-label">Data Solicitação</div><div class="print-value" id="printData"></div></div>
@@ -652,10 +672,9 @@
             }
 
             bancoOrdensCompleto = listaTratada.map(item => item.json || item).filter(item => item && typeof item === 'object');
-            bancoOrdensCompleto.reverse(); 
             renderizarTabela(bancoOrdensCompleto);
         } catch (e) {
-            document.getElementById('dadosHistorico').innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Erro ao carregar o histórico.</td></tr>`;
+            document.getElementById('dadosHistorico').innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Erro ao carregar o histórico.</td></tr>`;
         }
     }
 
@@ -663,11 +682,22 @@
         const tbody = document.getElementById('dadosHistorico');
         document.getElementById('totalRegistros').innerText = `${lista.length} registros`;
         if(lista.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 25px; color: #888;">Nenhuma OS registrada.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 25px; color: #888;">Nenhuma OS registrada.</td></tr>`;
             return;
         }
         tbody.innerHTML = "";
-        lista.forEach(item => {
+
+        let listaNumerada = lista.map((item, index) => {
+            let numGravado = obterValorCamaleao(item, ['numero_os', 'numeroos', 'numero-os', 'Nº OS']);
+            return { item: item, numeroOS: numGravado ? parseInt(numGravado, 10) : (index + 1) };
+        });
+
+        listaNumerada.reverse();
+
+        listaNumerada.forEach(registro => {
+            let item = registro.item;
+            let numeroOS = registro.numeroOS;
+
             let tr = document.createElement('tr');
             let dataOS = obterValorCamaleao(item, ['data', 'dataSolicitacao', 'datasolicitacao']);
             let frotaOS = obterValorCamaleao(item, ['frota', 'prefixo', 'caminhao']);
@@ -675,6 +705,8 @@
             let descOS = construirDescricaoServicos(item);
 
             tr.innerHTML = `
+                <td class="td-check"><input type="checkbox" class="os-checkbox" onclick="atualizarContadorSelecionados()"></td>
+                <td><span class="badge-os-numero">#${numeroOS}</span></td>
                 <td>${dataOS || "---"}</td>
                 <td><span class="badge-frota">${frotaOS || "---"}</span></td>
                 <td>${(prestadorOS || "---").toUpperCase()}</td>
@@ -682,20 +714,82 @@
             `;
             tbody.appendChild(tr);
         });
+
+        document.getElementById('checkMarcarTodos').checked = false;
+        atualizarContadorSelecionados();
     }
 
     function filtrarHistorico() {
+        const fNumero = document.getElementById('filtroNumeroOS').value.trim();
         const fFrota = document.getElementById('filtroFrota').value.toLowerCase();
         const fPrestador = document.getElementById('filtroPrestador').value.toLowerCase();
         const fServico = document.getElementById('filtroServico').value.toLowerCase();
 
-        const listaFiltrada = bancoOrdensCompleto.filter(item => {
+        let listaMapeadaCompleta = bancoOrdensCompleto.map((item, index) => {
+            let numGravado = obterValorCamaleao(item, ['numero_os', 'numeroos', 'numero-os', 'Nº OS']);
+            return { item: item, numeroOS: numGravado ? parseInt(numGravado, 10) : (index + 1) };
+        });
+
+        const listaFiltrada = listaMapeadaCompleta.filter(registro => {
+            let item = registro.item;
+            let numeroString = registro.numeroOS.toString();
             let frotaTexto = obterValorCamaleao(item, ['frota', 'prefixo', 'caminhao']).toLowerCase();
             let prestadorTexto = obterValorCamaleao(item, ['empresaparceira', 'prestador', 'oficina', 'nome']).toLowerCase();
             let descricaoTexto = construirDescricaoServicos(item).toLowerCase();
-            return frotaTexto.includes(fFrota) && prestadorTexto.includes(fPrestador) && descricaoTexto.includes(fServico);
+            
+            return (fNumero === "" || numeroString === fNumero) && 
+                   frotaTexto.includes(fFrota) && 
+                   prestadorTexto.includes(fPrestador) && 
+                   descricaoTexto.includes(fServico);
         });
-        renderizarTabela(listaFiltrada);
+
+        const tbody = document.getElementById('dadosHistorico');
+        tbody.innerHTML = "";
+        
+        let filtradaInvertida = [...listaFiltrada].reverse();
+        
+        if(filtradaInvertida.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #888;">Nenhum registro encontrado.</td></tr>`;
+            document.getElementById('totalRegistros').innerText = `0 registros`;
+            return;
+        }
+
+        document.getElementById('totalRegistros').innerText = `${filtradaInvertida.length} registros`;
+
+        filtradaInvertida.forEach(registro => {
+            let item = registro.item;
+            let tr = document.createElement('tr');
+            let dataOS = obterValorCamaleao(item, ['data', 'dataSolicitacao', 'datasolicitacao']);
+            let frotaOS = obterValorCamaleao(item, ['frota', 'prefixo', 'caminhao']);
+            let prestadorOS = obterValorCamaleao(item, ['empresaparceira', 'prestador', 'oficina', 'nome']).toLowerCase();
+            let descOS = construirDescricaoServicos(item);
+
+            tr.innerHTML = `
+                <td class="td-check"><input type="checkbox" class="os-checkbox" onclick="atualizarContadorSelecionados()"></td>
+                <td><span class="badge-os-numero">#${registro.numeroOS}</span></td>
+                <td>${dataOS || "---"}</td>
+                <td><span class="badge-frota">${frotaOS || "---"}</span></td>
+                <td>${prestadorOS.toUpperCase()}</td>
+                <td title="${descOS}">${descOS}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('checkMarcarTodos').checked = false;
+        atualizarContadorSelecionados();
+    }
+
+    // Gerenciador dos checkboxes extras
+    function marcarDesmarcarTodos(masterCheckbox) {
+        const checkboxes = document.querySelectorAll('.os-checkbox');
+        checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+        atualizarContadorSelecionados();
+    }
+
+    function atualizarContadorSelecionados() {
+        const checkboxes = document.querySelectorAll('.os-checkbox');
+        const marcados = Array.from(checkboxes).filter(cb => cb.checked).length;
+        document.getElementById('contadorSelecionados').innerText = `(${marcados} selecionadas)`;
     }
 
     document.getElementById('selectFrota').addEventListener('change', function() {
@@ -775,6 +869,9 @@
         const txtServico2 = document.getElementById('servico2').value || "---";
         const txtServico3 = document.getElementById('servico3').value || "---";
 
+        const proximoNumeroOS = bancoOrdensCompleto.length + 1;
+        document.getElementById('printNumeroOS').innerText = proximoNumeroOS;
+
         document.getElementById('printDataCidade').innerText = `Cascavel - PR, ${diaStr} de ${mesExtenso} de ${anoStr}.`;
         document.getElementById('printData').innerText = dataFormatadaBR;
         document.getElementById('printFrota').innerText = frotaValor;
@@ -788,6 +885,7 @@
         document.getElementById('printServico3').innerText = txtServico3 !== "---" ? `3º Serviço: ${txtServico3}` : "";
 
         const payload = { 
+            numero_os: proximoNumeroOS,
             dataSolicitacao: dataFormatadaBR, frota: frotaValor, placa: placaValor, modelo: modeloValor, filial: filialValor, cnpj: cnpjValor, 
             empresaParceira: document.getElementById('empresaParceira').value, servico1: txtServico1, servico2: txtServico2, servico3: txtServico3, 
             descricao: `1º ${txtServico1} | 2º ${txtServico2} | 3º ${txtServico3}` 
